@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-inter text-warm-cream;
+    background-color: #0a0a0a;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-dark-secondary/30 backdrop-blur-lg border border-copper/10 shadow-xl;
+  }
+
+  .btn-primary {
+    @apply bg-copper hover:bg-copper/90 text-dark-primary font-semibold transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-dark-secondary/60 hover:bg-dark-secondary text-warm-cream border border-copper/20 font-semibold transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-2 px-4 py-2 rounded-xl text-warm-cream hover:text-copper hover:bg-copper/10 transition-all duration-300;
+  }
+
+  .nav-link.active {
+    @apply bg-copper/20 text-copper;
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-2;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-copper to-amber-600 bg-clip-text text-transparent;
+  }
+}
