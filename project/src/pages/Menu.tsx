@@ -3,8 +3,10 @@ import { ShoppingCart, Plus, Minus, X, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { MenuItem, OrderItem } from '../lib/database.types';
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Menu() {
+  const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ export default function Menu() {
     const orderNumber = generateOrderNumber();
 
     try {
-      const { error } = await supabase.from('orders').insert([{
+      const { error } = await supabase.from('orders').insert({
         order_number: orderNumber,
         customer_name: customerName,
         customer_phone: customerPhone,
@@ -96,7 +98,8 @@ export default function Menu() {
         total_amount: getTotalAmount(),
         status: 'pending',
         payment_status: 'unpaid',
-      }] as any);
+        user_id: user?.id || null,
+      });
 
       if (error) throw error;
 

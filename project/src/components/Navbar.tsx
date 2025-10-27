@@ -1,15 +1,15 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Menu as MenuIcon, Info, ShieldCheck, LogOut } from 'lucide-react';
+import { Home, Menu as MenuIcon, Info, ShieldCheck, LogOut, User, Package } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAdmin, logout } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     toast.success('Logged out successfully');
     navigate('/');
   };
@@ -55,6 +55,34 @@ export default function Navbar() {
                 <Info className="w-5 h-5" />
                 <span className="hidden sm:inline">About</span>
               </Link>
+
+              {user ? (
+                <>
+                  <Link
+                    to="/my-orders"
+                    className={`nav-link ${isActive('/my-orders') ? 'active' : ''}`}
+                  >
+                    <Package className="w-5 h-5" />
+                    <span className="hidden sm:inline">My Orders</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="nav-link"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="hidden sm:inline">Logout</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="nav-link"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="hidden sm:inline">Sign In</span>
+                </Link>
+              )}
+
               {!isAdmin ? (
                 <Link
                   to="/admin/login"

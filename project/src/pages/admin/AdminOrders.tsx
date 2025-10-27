@@ -3,7 +3,7 @@ import { Clock, CheckCircle, Truck, CreditCard, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { Order, OrderItem } from '../../lib/database.types';
 import { toast } from 'sonner';
-import jsPDF from 'jspdf';
+import { generateEnhancedInvoice } from '../../utils/invoiceGenerator';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -64,6 +64,10 @@ export default function AdminOrders() {
   };
 
   const generateInvoice = (order: Order) => {
+    generateEnhancedInvoice(order);
+    toast.success('Invoice generated successfully');
+    return;
+    // Legacy code below
     const doc = new jsPDF();
     const items = order.items as OrderItem[];
 

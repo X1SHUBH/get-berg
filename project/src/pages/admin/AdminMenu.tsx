@@ -53,7 +53,7 @@ export default function AdminMenu() {
           .from('menu_items')
           .update({
             name: formData.name,
-            price:formData.price,
+            price,
             image_url: formData.image_url,
             description: formData.description,
             is_available: formData.is_available,
@@ -65,7 +65,7 @@ export default function AdminMenu() {
       } else {
         const { error } = await supabase.from('menu_items').insert({
           name: formData.name,
-          price: formData.price,
+          price,
           image_url: formData.image_url,
           description: formData.description,
           is_available: formData.is_available,

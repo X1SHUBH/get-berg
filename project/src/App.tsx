@@ -6,6 +6,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import About from './pages/About';
+import Login from './pages/Login';
+import MyOrders from './pages/MyOrders';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -24,6 +26,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/my-orders" element={<MyOrders />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route
                   path="/admin/menu"

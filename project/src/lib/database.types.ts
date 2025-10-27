@@ -51,6 +51,10 @@ export interface Database {
           total_amount: number
           status: 'pending' | 'preparing' | 'delivered'
           payment_status: 'unpaid' | 'paid'
+          user_id: string | null
+          delivery_address: string
+          delivery_lat: number | null
+          delivery_lng: number | null
           created_at: string
           updated_at: string
         }
@@ -63,6 +67,10 @@ export interface Database {
           total_amount: number
           status?: 'pending' | 'preparing' | 'delivered'
           payment_status?: 'unpaid' | 'paid'
+          user_id?: string | null
+          delivery_address?: string
+          delivery_lat?: number | null
+          delivery_lng?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -75,8 +83,35 @@ export interface Database {
           total_amount?: number
           status?: 'pending' | 'preparing' | 'delivered'
           payment_status?: 'unpaid' | 'paid'
+          user_id?: string | null
+          delivery_address?: string
+          delivery_lat?: number | null
+          delivery_lng?: number | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      admin_users: {
+        Row: {
+          id: string
+          user_id: string
+          role: 'admin' | 'manager'
+          email: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          role?: 'admin' | 'manager'
+          email: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          role?: 'admin' | 'manager'
+          email?: string
+          created_at?: string
         }
       }
       about_info: {
@@ -112,6 +147,7 @@ export interface Database {
 export type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 export type Order = Database['public']['Tables']['orders']['Row'];
 export type AboutInfo = Database['public']['Tables']['about_info']['Row'];
+export type AdminUser = Database['public']['Tables']['admin_users']['Row'];
 
 export interface OrderItem {
   id: string;
