@@ -1,153 +1,96 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, LogIn, Mail } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { supabase } from "@/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { Lock, Mail } from "lucide-react";
 
-export default function AdminLogin() {
-  const [useSupabase, setUseSupabase] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const AdminLogin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { legacyAdminLogin, adminLogin } = useAuth();
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLegacySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (legacyAdminLogin(password)) {
-      toast.success('Welcome, Admin!');
-      navigate('/admin/menu');
-    } else {
-      toast.error('Invalid password');
-      setPassword('');
-    }
-  };
-
-  const handleSupabaseSubmit = async (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
-      const success = await adminLogin(email, password);
-      if (success) {
-        toast.success('Welcome, Admin!');
-        navigate('/admin/menu');
-      } else {
-        toast.error('Invalid credentials or not an admin account');
-        setPassword('');
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check admin role from admin_users table
+      const { data: adminUser, error: adminError } = await supabase
+        .from("admin_users")
+        .select("*")
+        .eq("user_id", data.user?.id)
+        .single();
+
+      if (adminError || !adminUser) {
+        throw new Error("You are not authorized as an admin");
       }
-    } catch (error) {
-      toast.error('Login failed. Please try again.');
-      console.error(error);
+
+      navigate("/admin/orders");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Login failed. Please check credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="glass-card rounded-2xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-copper/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-copper" />
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
+      <div className="bg-neutral-900 p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex flex-col items-center mb-6">
+          <div className="bg-copper-700 text-white rounded-full p-3 mb-4">
+            <Lock size={28} />
           </div>
-          <h1 className="text-3xl font-playfair text-copper mb-2">Admin Login</h1>
-          <p className="text-warm-cream">
-            {useSupabase
-              ? 'Sign in with your admin account'
-              : 'Enter your password to access the admin panel'}
-          </p>
+          <h2 className="text-2xl font-semibold text-copper-400">Admin Login</h2>
+          <p className="text-neutral-400 mt-2">Sign in with your admin account</p>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <form onSubmit={handleAdminLogin} className="space-y-4">
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 text-neutral-500" size={18} />
+            <input
+              type="email"
+              placeholder="Enter your admin email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full pl-10 p-3 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:border-copper-500 outline-none"
+            />
+          </div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 text-neutral-500" size={18} />
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full pl-10 p-3 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:border-copper-500 outline-none"
+            />
+          </div>
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+
           <button
-            onClick={() => setUseSupabase(false)}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm transition-all ${
-              !useSupabase
-                ? 'bg-copper text-dark-primary'
-                : 'bg-dark-secondary/40 text-warm-cream hover:bg-dark-secondary/60'
-            }`}
+            type="submit"
+            disabled={loading}
+            className="w-full bg-copper-600 hover:bg-copper-500 text-white py-3 rounded-lg font-medium transition"
           >
-            Quick Login
+            {loading ? "Signing In..." : "Sign In"}
           </button>
-          <button
-            onClick={() => setUseSupabase(true)}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm transition-all ${
-              useSupabase
-                ? 'bg-copper text-dark-primary'
-                : 'bg-dark-secondary/40 text-warm-cream hover:bg-dark-secondary/60'
-            }`}
-          >
-            Admin Account
-          </button>
-        </div>
-
-        {!useSupabase ? (
-          <form onSubmit={handleLegacySubmit} className="space-y-6">
-            <div>
-              <label className="block text-warm-cream mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-dark-secondary/40 border border-copper/20 text-warm-cream focus:outline-none focus:border-copper"
-                placeholder="Enter admin password"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn-primary w-full py-3 rounded-xl flex items-center justify-center gap-2"
-            >
-              <LogIn className="w-5 h-5" />
-              Login
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleSupabaseSubmit} className="space-y-6">
-            <div>
-              <label className="block text-warm-cream mb-2">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-copper/60" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-dark-secondary/40 border border-copper/20 text-warm-cream focus:outline-none focus:border-copper"
-                  placeholder="Enter your admin email"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-warm-cream mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-copper/60" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-dark-secondary/40 border border-copper/20 text-warm-cream focus:outline-none focus:border-copper"
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full py-3 rounded-xl flex items-center justify-center gap-2"
-            >
-              <LogIn className="w-5 h-5" />
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-        )}
+        </form>
       </div>
     </div>
   );
-}
+};
+
+export default AdminLogin;
